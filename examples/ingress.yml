@@ -1,0 +1,11 @@
+apiVersion: mc-loadbalancer.brunostjohn.com/v0alpha1
+kind: MCIngress
+metadata:
+  name: example-ingress
+  namespace: default
+spec:
+  service: example-service
+  port: 25565
+  hosts:
+    - mc.example.com
+  sendProxyProtocol: false
