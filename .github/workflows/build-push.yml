@@ -30,6 +30,7 @@ jobs:
         with:
           images: ghcr.io/brunostjohn/k8s-mc-loadbalancer
           tags: |
+            type=edge,branch=main
             type=semver,pattern={{version}}
       - name: Build and push Docker image
         id: build-and-push
