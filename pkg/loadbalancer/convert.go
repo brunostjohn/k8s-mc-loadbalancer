@@ -29,22 +29,22 @@ func flattenProxyUUIDs(proxies *[]ProxyUUIDs) []*ir.Proxy {
 	return flatProxies
 }
 
-func convertLbListToProxy(lbs *[]types.MCIngress, bind string, bindPort string) *[]ProxyUUIDs {
+func convertLbListToProxy(lbs *[]types.MCIngress, bind string, bindPort string, clusterDomain string) *[]ProxyUUIDs {
 	proxies := make([]ProxyUUIDs, len(*lbs))
 	for i, lb := range *lbs {
-		proxies[i] = *convertLbToProxy(&lb, bind, bindPort)
+		proxies[i] = *convertLbToProxy(&lb, bind, bindPort, clusterDomain)
 	}
 
 	return &proxies
 }
 
-func convertLbToProxy(lb *types.MCIngress, bind string, bindPort string) *ProxyUUIDs {
+func convertLbToProxy(lb *types.MCIngress, bind string, bindPort string, clusterDomain string) *ProxyUUIDs {
 	proxies := make([]*ir.Proxy, len(lb.Spec.Hosts))
 	for i, host := range lb.Spec.Hosts {
 		proxies[i] = &ir.Proxy{
 			Config: &ir.ProxyConfig{
 				DomainName: host,
-				ProxyTo: lb.Spec.Service+"."+lb.ObjectMeta.Namespace,
+				ProxyTo: lb.Spec.Service+"."+lb.ObjectMeta.Namespace+".svc."+clusterDomain,
 				ProxyBind: bind,
 				ListenTo: ":"+bindPort,
 			},

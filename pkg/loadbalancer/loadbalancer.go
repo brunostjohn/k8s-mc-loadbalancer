@@ -30,6 +30,7 @@ type MCLoadBalancerOptions struct {
 	EnablePrometheus bool
 	PrometheusBindAddress *net.IP
 	PrometheusBindPort int
+	ClusterDomain string
 }
 
 type ProxyUUIDs struct {
@@ -46,6 +47,7 @@ type MCLoadBalancer struct {
 	bindAddress string
 	bindPort string
 	watchFrequency time.Duration
+	clusterDomain string
 }
 
 func NewMCLoadBalancer(ctx context.Context, options MCLoadBalancerOptions) (*MCLoadBalancer, error) {
@@ -108,6 +110,7 @@ func NewMCLoadBalancer(ctx context.Context, options MCLoadBalancerOptions) (*MCL
 		bindPort: bindPort,
 		uuids: &[]ProxyUUIDs{},
 		watchFrequency: options.WatchFrequency,
+		clusterDomain: options.ClusterDomain,
 	}, nil
 }
 
@@ -123,7 +126,7 @@ func (lb *MCLoadBalancer) Start(ctx context.Context) error {
 	}
 	lb.log.Debug().Msgf("List of ingresses: %v", ingressListToString(&list.Items))
 
-	lb.uuids = convertLbListToProxy(&list.Items, lb.bindAddress, lb.bindPort)
+	lb.uuids = convertLbListToProxy(&list.Items, lb.bindAddress, lb.bindPort, lb.clusterDomain)
 
 	go lb.gatewayListen(ctx)
 	go lb.handleProxyUpdates(ctx, proxiesChannel)
@@ -162,7 +165,7 @@ func (lb *MCLoadBalancer) handleProxyUpdates(ctx context.Context, proxiesChannel
 
 			newProxies := newListEleemnts(*lb.uuids, proxies)
 			lb.log.Debug().Msgf("Found %v new proxies", len(newProxies))
-			newList := convertLbListToProxy(&newProxies, lb.bindAddress, lb.bindPort)
+			newList := convertLbListToProxy(&newProxies, lb.bindAddress, lb.bindPort, lb.clusterDomain)
 			for _, proxyUUID := range *newList {
 				for _, proxy := range proxyUUID.uuids {
 					lb.log.Info().Msgf("Registering new proxy: %s", proxy.Config.DomainName)

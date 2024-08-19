@@ -39,6 +39,7 @@ var proxyPollInterval int
 var prometheusBindAddress net.IP
 var prometheusBindPort int
 var enablePrometheus bool
+var clusterDomain string
 
 func init() {
 	startCmd.Flags().IPVarP(&bindAddress, "bind-address", "b", net.IPv4(0, 0, 0, 0), "The IP address to bind to.")
@@ -53,6 +54,7 @@ func init() {
 	startCmd.Flags().IPVarP(&prometheusBindAddress, "prometheus-bind-address", "a", net.IPv4(0, 0, 0, 0), "The IP address to bind to for Prometheus.")
 	startCmd.Flags().IntVarP(&prometheusBindPort, "prometheus-bind-port", "o", 2112, "The port to bind to for Prometheus.")
 	startCmd.Flags().BoolVarP(&enablePrometheus, "enable-prometheus", "e", false, "Enable Prometheus metrics.")
+	startCmd.Flags().StringVarP(&clusterDomain, "cluster-domain", "d", "cluster.local", "The cluster domain.")
 }
 
 func runStartCommand(cmd *cobra.Command, args []string) {
@@ -70,6 +72,7 @@ func runStartCommand(cmd *cobra.Command, args []string) {
 		EnablePrometheus: enablePrometheus,
 		PrometheusBindAddress: &prometheusBindAddress,
 		PrometheusBindPort: prometheusBindPort,
+		ClusterDomain: clusterDomain,
 	})
 	if err != nil {
 		panic(err)
