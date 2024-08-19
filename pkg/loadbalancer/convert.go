@@ -2,6 +2,7 @@ package loadbalancer
 
 import (
 	"encoding/json"
+	"fmt"
 
 	types "github.com/brunostjohn/k8s-mc-loadbalancer/api/types/v0alpha1"
 	ir "github.com/haveachin/infrared"
@@ -44,7 +45,7 @@ func convertLbToProxy(lb *types.MCIngress, bind string, bindPort string, cluster
 		proxies[i] = &ir.Proxy{
 			Config: &ir.ProxyConfig{
 				DomainName: host,
-				ProxyTo: lb.Spec.Service+"."+lb.ObjectMeta.Namespace+".svc."+clusterDomain,
+				ProxyTo: lb.Spec.Service+"."+lb.ObjectMeta.Namespace+".svc."+clusterDomain+":"+fmt.Sprintf("%d", lb.Spec.Port),
 				ProxyBind: bind,
 				ListenTo: ":"+bindPort,
 			},
